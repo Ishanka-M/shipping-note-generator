@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipping Note Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+        .form-container { background: white; padding: 20px; max-width: 800px; margin: auto; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        button { background: #28a745; color: white; padding: 10px 20px; border: none; cursor: pointer; font-size: 16px; width: 100%; }
+        
+        /* PDF Layout Styles */
+        #document-preview { 
+            width: 210mm; min-height: 297mm; padding: 10mm; background: white; 
+            border: 1px solid #000; font-size: 10pt; position: absolute; left: -9999px; 
+        }
+        .header-table { width: 100%; border-collapse: collapse; border: 1px solid black; }
+        .header-table td { border: 1px solid black; padding: 5px; vertical-align: top; }
+        .title { text-align: center; font-weight: bold; font-size: 14pt; }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Update Shipping Note Data</h2>
+    <div class="input-group">
+        <label>Shipper Name & Address</label>
+        <textarea id="shipper">EFL GLOBAL FREEPORT (PVT) LTD, LOT NO 117 SPUR ROAD 3 PHASE 1 </textarea>
+    </div>
+    <div class="input-group">
+        <label>Consignee Name & Address</label>
+        <textarea id="consignee">POL-MET M.BLACHNIO SPÓLKA, 05-462, UL.CICHA 46, ZANECIN, POLAND [cite: 14, 16]</textarea>
+    </div>
+    <div class="input-group">
+        <label>Vessel Name</label>
+        <input type="text" id="vessel" value="ONE READINESS ">
+    </div>
+    <div class="input-group">
+        <label>Port of Loading</label>
+        <input type="text" id="pol" value="COLOMBO [cite: 28]">
+    </div>
+    <div class="input-group">
+        <label>Port of Discharge</label>
+        <input type="text" id="pod" value="HAMBURG, HH [cite: 32]">
+    </div>
+    <div class="input-group">
+        <label>Description of Goods</label>
+        <input type="text" id="goods" value="SCREWS [cite: 48]">
+    </div>
+    <div class="input-group">
+        <label>Gross Weight (Kg)</label>
+        <input type="text" id="weight" value="26,496.52 [cite: 47]">
+    </div>
+    <button onclick="generatePDF()">Download PDF</button>
+</div>
+
+<div id="document-preview">
+    <div class="title">SHIPPING NOTE / BOAT NOTE - Exp 3a [cite: 1]</div>
+    <table class="header-table">
+        <tr>
+            <td width="50%">
+                <strong>1. a. Shipper:</strong><br>
+                <span id="p-shipper"></span>
+            </td>
+            <td>
+                <strong>9. Customs Entry No:</strong> <br>
+                <strong>10. SN (B/L) No:</strong> KTBE1E742102025 [cite: 6]
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <strong>1. b. Consignee:</strong><br>
+                <span id="p-consignee"></span>
+            </td>
+            <td>
+                <strong>13. Shipping Line:</strong> ONE LINE [cite: 15]<br>
+                <strong>14 (a). Place of Acceptance:</strong> CICT [cite: 19]
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <strong>6. Vessel:</strong> <span id="p-vessel"></span><br>
+                <strong>Port of Loading:</strong> <span id="p-pol"></span>
+            </td>
+            <td>
+                <strong>Port of Discharge:</strong> <span id="p-pod"></span><br>
+                <strong>Status:</strong> X FCL [cite: 75]
+            </td>
+        </tr>
+    </table>
+    <br>
+    <table class="header-table">
+        <tr style="background: #eee;">
+            <th>15. Marks / Container No.</th>
+            <th>17. Description of Goods</th>
+            <th>19 (a). Gross Wt (Kg)</th>
+        </tr>
+        <tr>
+            <td height="100px">CMBF15124600 </td>
+            <td><span id="p-goods"></span></td>
+            <td><span id="p-weight"></span> [cite: 47]</td>
+        </tr>
+    </table>
+    <br>
+    <p><strong>31. Name of Declarant:</strong> Rizan - 077 300 1241 </p>
+    <p><strong>Date:</strong> 03-Sep-25 [cite: 87]</p>
+</div>
+
+<script>
+    function generatePDF() {
+        // Form එකේ දත්ත PDF එකට ඇතුළත් කිරීම
+        document.getElementById('p-shipper').innerText = document.getElementById('shipper').value;
+        document.getElementById('p-consignee').innerText = document.getElementById('consignee').value;
+        document.getElementById('p-vessel').innerText = document.getElementById('vessel').value;
+        document.getElementById('p-pol').innerText = document.getElementById('pol').value;
+        document.getElementById('p-pod').innerText = document.getElementById('pod').value;
+        document.getElementById('p-goods').innerText = document.getElementById('goods').value;
+        document.getElementById('p-weight').innerText = document.getElementById('weight').value;
+
+        // PDF එක සෑදීම
+        const element = document.getElementById('document-preview');
+        const opt = {
+            margin:       10,
+            filename:     'Shipping_Note.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        
+        html2pdf().set(opt).from(element).save();
+    }
+</script>
+
+</body>
+</html>
