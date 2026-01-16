@@ -3,143 +3,241 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shipping Note Generator</title>
+    <title>Professional Shipping Note Generator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; padding: 40px; }
-        .form-container { background: white; padding: 30px; max-width: 600px; margin: auto; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-        h2 { text-align: center; color: #1a73e8; margin-bottom: 25px; }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-weight: 600; margin-bottom: 5px; color: #444; }
-        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { background: #1a73e8; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; margin-top: 10px; font-weight: bold; }
-        button:hover { background: #1557b0; }
-
-        /* PDF Styles - Hidden by default */
-        #document-preview { 
-            width: 210mm; padding: 15mm; background: white; 
-            border: 1px solid #000; font-size: 11pt; color: black;
-            display: none; /* පෙන්වන්නේ download කරන වෙලාවේදී පමණි */
+        body { font-family: Arial, Helvetica, sans-serif; background: #525659; padding: 20px; }
+        .editor-panel { background: white; max-width: 900px; margin: 0 auto 20px; padding: 20px; border-radius: 8px; }
+        
+        /* Layout CSS for 100% Matching */
+        #shipping-note {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            margin: 0 auto;
+            padding: 5mm;
+            box-sizing: border-box;
+            font-size: 8pt;
+            display: none; /* Hide in browser, show in PDF */
         }
-        .pdf-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .pdf-table td, .pdf-table th { border: 1px solid black; padding: 8px; vertical-align: top; }
-        .header-title { text-align: center; font-size: 16pt; font-weight: bold; text-decoration: underline; margin-bottom: 20px; }
+        
+        .main-grid { border: 1px solid black; width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .main-grid td { border: 0.5px solid black; padding: 2px 4px; vertical-align: top; height: 40px; }
+        .header-text { font-weight: bold; font-size: 7pt; display: block; margin-bottom: 2px; }
+        .content-text { font-size: 9pt; font-weight: normal; word-wrap: break-word; }
+        .title-row { text-align: right; font-size: 14pt; font-weight: bold; border: none !important; }
+        
+        /* Specific Styles */
+        .no-border { border: none !important; }
+        .table-inner { width: 100%; border-collapse: collapse; }
+        .table-inner td { border: 0.5px solid black; }
+        .checkbox-container { display: flex; align-items: center; gap: 10px; }
+        .box { border: 1px solid black; width: 12px; height: 12px; display: inline-block; text-align: center; line-height: 12px; }
+
+        input, textarea { width: 100%; margin-bottom: 10px; padding: 5px; box-sizing: border-box; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 4px; width: 100%; font-size: 16px; }
     </style>
 </head>
 <body>
 
-<div class="form-container">
-    <h2>Shipping Note Editor</h2>
+<div class="editor-panel">
+    <h3>Shipping Note Data Entry</h3>
+    <label>1.a. Shipper Details:</label>
+    <textarea id="in-shipper" rows="3">E F L GLOBAL FREEPORT (PVT) LTD&#10;LOT NO 117 SPUR ROAD 3,PHASE 1&#10;EPZ (EXPORT PROC.ZONE) KATUNAYAKA</textarea>
     
-    <div class="input-group">
-        <label>1. a. Shipper (Name and Address)</label>
-        <textarea id="shipper" rows="3">EFL GLOBAL FREEPORT (PVT) LTD LOT NO 117 SPUR ROAD 3 PHASE 1 </textarea>
+    <label>1.b. Consignee Details:</label>
+    <textarea id="in-consignee" rows="3">POL-MET M.BLACHNIO SPÓLKA&#10;05-462,UL.CICHA 46, ZANECIN,&#10;WIAZOWNA,POLAND</textarea>
+
+    <div style="display:flex; gap:10px;">
+        <div style="flex:1;"><label>6. Vessel:</label><input type="text" id="in-vessel" value="ONE READINESS"></div>
+        <div style="flex:1;"><label>4. Voyage No:</label><input type="text" id="in-voyage" value="009W 06/09/2025"></div>
     </div>
 
-    <div class="input-group">
-        <label>1. b. Consignee (Name and Address)</label>
-        <textarea id="consignee" rows="3">POL-MET M.BLACHNIO SPÓLKA 05-462, UL.CICHA 46, ZANECIN, WIAZOWNA, POLAND [cite: 14, 16]</textarea>
-    </div>
+    <label>17. Description of Goods:</label>
+    <input type="text" id="in-goods" value="1X40 HC STC 55 PX OF SCREWS">
 
-    <div class="input-group">
-        <label>6. Vessel / Voyage</label>
-        <input type="text" id="vessel" value="ONE READINESS / 009W [cite: 23, 27]">
-    </div>
+    <label>19(a). Gross Weight (Kg):</label>
+    <input type="text" id="in-weight" value="26,496.52">
 
-    <div class="input-group">
-        <label>17. Description of Goods</label>
-        <input type="text" id="goods" value="1X40 HC STC 55 PX OF SCREWS [cite: 48]">
-    </div>
-
-    <div class="input-group">
-        <label>19 (a). Gross Wt (Kg)</label>
-        <input type="text" id="weight" value="26,496.52 ">
-    </div>
-
-    <button onclick="generatePDF()">Download PDF</button>
+    <button onclick="generatePDF()">Download 100% Match PDF</button>
 </div>
 
-<div id="document-preview">
-    <div class="header-title">SHIPPING NOTE / BOAT NOTE - Exp 3a [cite: 1]</div>
+<div id="shipping-note">
+    <div class="title-row">SHIPPING NOTE / BOAT NOTE - Exp 3a</div>
     
-    <table class="pdf-table">
+    <table class="main-grid">
         <tr>
-            <td width="60%">
-                <strong>1. a. Shipper:</strong><br>
-                <div id="p-shipper"></div>
+            <td colspan="4" rowspan="2">
+                <span class="header-text">1. a. Shipper (Name and Address) 3336/7 [cite: 2, 5]</span>
+                <div class="content-text" id="out-shipper"></div>
             </td>
-            <td>
-                <strong>10. SN (B/L) No:</strong><br> KTBE1E742102025 [cite: 6]
+            <td colspan="2">
+                <span class="header-text">9. Customs Entry No: [cite: 3]</span>
+                <div class="content-text" style="font-weight:bold;">KTBE1E742102025 [cite: 6]</div>
+            </td>
+            <td colspan="2">
+                <span class="header-text">10. SN ( B/L ) No: [cite: 4]</span>
+                <div class="content-text">CMBF15124600 [cite: 7]</div>
             </td>
         </tr>
         <tr>
-            <td>
-                <strong>1. b. Consignee:</strong><br>
-                <div id="p-consignee"></div>
+            <td colspan="2">
+                <span class="header-text">11. Exporters Registration No: [cite: 8]</span>
             </td>
-            <td>
-                <strong>13. Shipping Line:</strong><br> ONE LINE [cite: 15]
+            <td colspan="2">
+                <span class="header-text">12. SLPA No: [cite: 9]</span>
+                <div class="content-text">SO-FCL-EXPORT-2025-1466911 [cite: 11]</div>
             </td>
         </tr>
         <tr>
-            <td>
-                <strong>6. Vessel:</strong> <span id="p-vessel"></span><br>
-                <strong>Port of Loading:</strong> COLOMBO [cite: 28]
+            <td colspan="4">
+                <span class="header-text">1. b. Consignee (Name and Address) + 3132/3 [cite: 12]</span>
+                <div class="content-text" id="out-consignee"></div>
             </td>
-            <td>
-                <strong>Port of Discharge:</strong> HAMBURG, HH [cite: 32]<br>
-                <strong>Place of Delivery:</strong> GDANSK [cite: 24]
+            <td colspan="4">
+                <span class="header-text">13. Name of Shipping Line / Mto 3126/7: [cite: 13]</span>
+                <div class="content-text">ONE LINE [cite: 15]</div>
             </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <span class="header-text">3 Notify Address: [cite: 17]</span>
+            </td>
+            <td colspan="4">
+                <span class="header-text">14. (a) Place of Acceptance 3348/9: [cite: 18]</span>
+                <div class="content-text">CICT [cite: 19]</div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <span class="header-text">4. Voyage No. / Date 8228 [cite: 20]</span>
+                <div class="content-text" id="out-voyage"></div>
+            </td>
+            <td colspan="2">
+                <span class="header-text">5 Warehouse No 3156: [cite: 21]</span>
+            </td>
+            <td colspan="4">
+                <span class="header-text">14. (b) Place of Delivery 3246/7: [cite: 22]</span>
+                <div class="content-text">GDANSK [cite: 24]</div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <span class="header-text">6. Vessel 8122/3 [cite: 25]</span>
+                <div class="content-text" id="out-vessel"></div>
+            </td>
+            <td colspan="2">
+                <span class="header-text">6. Port of Loading 3230/1 [cite: 26]</span>
+                <div class="content-text">COLOMBO [cite: 28]</div>
+            </td>
+            <td colspan="4" rowspan="2" style="font-size: 6pt;">
+                The Company preparing this note declares that to be best of their behalf the goods
+                have been accuratly destined, their quantities weights and measurements are correct
+                and at the time of despatch they were in good order and condition [cite: 35]
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <span class="header-text">8 Port of Discharge: [cite: 29]</span>
+                <div class="content-text">HAMBURG, HH [cite: 32]</div>
+            </td>
+            <td><span class="header-text">VSL OPR Code: [cite: 30]</span><div class="content-text">ONE [cite: 33]</div></td>
+            <td><span class="header-text">CNT OPR Code: [cite: 31]</span><div class="content-text">ONE [cite: 34]</div></td>
+        </tr>
+        <tr style="height: 20px; text-align: center;">
+            <td colspan="2"><span class="header-text">15. Marks Numbers / Container No. [cite: 36]</span></td>
+            <td><span class="header-text">16. Number & Kind of pkgs [cite: 37]</span></td>
+            <td colspan="2"><span class="header-text">17. Description of Goods [cite: 41]</span></td>
+            <td><span class="header-text">18. CCN No [cite: 41]</span></td>
+            <td><span class="header-text">19. (a) Gross Wt (Kg) [cite: 42, 44]</span></td>
+            <td><span class="header-text">20 (a) Cube m3 [cite: 45]</span></td>
+        </tr>
+        <tr style="height: 180px;">
+            <td colspan="2" class="content-text">CMBF15124600 [cite: 7]</td>
+            <td class="content-text">55 PX [cite: 46]</td>
+            <td colspan="2" class="content-text" id="out-goods"></td>
+            <td></td>
+            <td class="content-text" id="out-weight"></td>
+            <td class="content-text"></td>
         </tr>
     </table>
+    
+    <div style="display: flex; border: 1px solid black; border-top: none;">
+        <div style="flex: 1; border-right: 1px solid black; padding: 5px;">
+            <span class="header-text">21. For SLPA Use [cite: 56]</span>
+            <div style="height: 80px;"></div>
+            <div style="display: flex; justify-content: space-between;">
+                <span>Date [cite: 60]</span><span>Signature [cite: 61]</span>
+            </div>
+        </div>
+        <div style="flex: 1; border-right: 1px solid black; padding: 5px;">
+            <span class="header-text">23. Shipping Agent [cite: 57]</span>
+            <div style="height: 80px;"></div>
+            <div style="display: flex; justify-content: space-between;">
+                <span>Date [cite: 62]</span><span>Signature [cite: 63]</span>
+            </div>
+        </div>
+        <div style="flex: 1; padding: 5px;">
+            <span class="header-text">29. Chief Officer [cite: 59]</span>
+            <p style="font-size: 7pt;">Received on board ... number of packages / container / trailer in apparent good order and condition. [cite: 58]</p>
+            <div style="height: 40px;"></div>
+            <div style="display: flex; justify-content: space-between;">
+                <span>Date [cite: 64]</span><span>Signature [cite: 65]</span>
+            </div>
+        </div>
+    </div>
 
-    <table class="pdf-table" style="margin-top: 20px;">
-        <tr style="background-color: #f2f2f2;">
-            <th width="30%">15. Marks & Container No.</th>
-            <th width="45%">17. Description of Goods</th>
-            <th width="25%">19 (a). Gross Wt (Kg)</th>
-        </tr>
-        <tr>
-            <td height="150">CMBF15124600 [cite: 7]</td>
-            <td><div id="p-goods"></div></td>
-            <td><div id="p-weight"></div></td>
-        </tr>
-    </table>
-
-    <div style="margin-top: 30px;">
-        <p><strong>31. Name of Declarant:</strong> Rizan-077 300 1241 [cite: 84]</p>
-        <p><strong>Date:</strong> 03-Sep-25 [cite: 87]</p>
+    <div style="display: flex; border: 1px solid black; border-top: none;">
+        <div style="flex: 1.5; border-right: 1px solid black;">
+            <table class="table-inner" style="height: 100%;">
+                <tr><td>22. [cite: 66]</td><td>Estimated Amount [cite: 66]</td><td>Final Amount [cite: 66]</td></tr>
+                <tr><td>a. Wharfage [cite: 66]</td><td></td><td></td></tr>
+                <tr><td>b. Less F.C.L Rebate [cite: 66]</td><td></td><td></td></tr>
+                <tr><td>g. Total [cite: 66]</td><td></td><td></td></tr>
+            </table>
+        </div>
+        <div style="flex: 1; padding: 5px;">
+            <span class="header-text">30. Name of Company preparing this Note [cite: 73]</span>
+            <div style="margin-top: 20px;">
+                <span class="header-text">25. a) Status of container 8130/1 [cite: 74]</span>
+                <div class="checkbox-container">
+                    <span><span class="box">X</span> FCL [cite: 75, 76]</span>
+                    <span><span class="box"></span> LCL [cite: 78]</span>
+                </div>
+            </div>
+            <div style="margin-top: 10px;">
+                <span class="header-text">31. Name of Declarent: [cite: 79]</span>
+                <div class="content-text">Rizan- 077 300 1241 [cite: 84]</div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
     function generatePDF() {
-        const element = document.getElementById('document-preview');
-        
-        // Form එකේ දත්ත PDF එකට දැමීම
-        document.getElementById('p-shipper').innerText = document.getElementById('shipper').value;
-        document.getElementById('p-consignee').innerText = document.getElementById('consignee').value;
-        document.getElementById('p-vessel').innerText = document.getElementById('vessel').value;
-        document.getElementById('p-goods').innerText = document.getElementById('goods').value;
-        document.getElementById('p-weight').innerText = document.getElementById('weight').value;
+        // Map Inputs to Template
+        document.getElementById('out-shipper').innerText = document.getElementById('in-shipper').value;
+        document.getElementById('out-consignee').innerText = document.getElementById('in-consignee').value;
+        document.getElementById('out-vessel').innerText = document.getElementById('in-vessel').value;
+        document.getElementById('out-voyage').innerText = document.getElementById('in-voyage').value;
+        document.getElementById('out-goods').innerText = document.getElementById('in-goods').value;
+        document.getElementById('out-weight').innerText = document.getElementById('in-weight').value;
 
-        // PDF එක සැකසීමට පෙර Template එක පෙන්වීම
-        element.style.display = 'block';
+        const element = document.getElementById('shipping-note');
+        element.style.display = 'block'; // Temporarily show to capture
 
         const opt = {
-            margin:       10,
-            filename:     'Shipping_Note.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true },
+            margin:       0,
+            filename:     'Shipping_Note_Official.pdf',
+            image:        { type: 'jpeg', quality: 1 },
+            html2canvas:  { scale: 3, logging: true, letterRendering: true, useCORS: true },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
-        
-        // PDF එක සාදා අවසන් වූ පසු නැවත සැඟවීම
+
         html2pdf().set(opt).from(element).save().then(() => {
-            element.style.display = 'none';
+            element.style.display = 'none'; // Hide again
         });
     }
 </script>
-
 </body>
 </html>
